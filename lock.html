@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Unlock') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+</head>
+<body>
+    <div class="language-toggle">
+        <a href="{{ url_for('set_language', lang='en') }}">English</a>
+        <a href="{{ url_for('set_language', lang='hi') }}">हिन्दी</a>
+    </div>
+    <div class="container">
+        <h1>{{ _('Enter PIN to Unlock') }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="pin">{{ _('PIN') }}</label>
+                <input type="password" id="pin" name="pin" required>
+            </div>
+            <button type="submit" class="btn">{{ _('Unlock') }}</button>
+        </form>
+    </div>
+</body>
+</html>

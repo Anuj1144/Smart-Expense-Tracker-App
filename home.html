@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Home') }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .streak {
+        text-align: center;
+        font-size: 1.5em;
+        color: #007bff;
+        animation: bounce 1s ease-in-out;
+    }
+    body.dark-mode .streak {
+        color: #00c4ff;
+    }
+    .streak-icon {
+        font-size: 2em;
+        animation: pulse 2s infinite;
+    }
+    .chart-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{{ _('Welcome to SmartExpenseTracker') }}</h1>
+
+<!-- Savings Streak -->
+<div class="widget">
+    <h2>{{ _('Savings Streak') }}</h2>
+    <p>{{ _('You have saved for %(days)s days in a row!', days=streak) }}</p>
+    <div class="streak">
+        <span class="streak-icon">🔥</span> <span>{{ streak }}</span>
+    </div>
+</div>
+
+<!-- Auto-Categorization (Pie Chart) -->
+<div class="widget">
+    <h2>{{ _('Auto-Categorization') }}</h2>
+    <div class="chart-container">
+        <canvas id="categoryChart"></canvas>
+    </div>
+</div>
+
+<!-- Spending Trend (Line Plot) -->
+<div class="widget">
+    <h2>{{ _('Spending Trend') }}</h2>
+    <div class="chart-container">
+        <canvas id="spendingTrendChart"></canvas>
+    </div>
+</div>
+
+<!-- Category-Wise Spending (Bar Chart) -->
+<div class="widget">
+    <h2>{{ _('Category-Wise Spending') }}</h2>
+    <div class="chart-container">
+        <canvas id="categoryBarChart"></canvas>
+    </div>
+</div>
+
+<!-- Smart Insights -->
+<div class="widget">
+    <h2>{{ _('Smart Insights') }}</h2>
+    <p>{{ _('Total Spent') }}: ₹{{ total_spent }}</p>
+    <p>{{ _('Budget') }}: {% if budget is not none %}₹{{ budget }}{% else %}{{ _('Not Set') }}{% endif %}</p>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="budget" class="form-label">{{ _('Set Monthly Budget') }}</label>
+            <input type="number" class="form-control" id="budget" name="budget" placeholder="{{ _('Enter budget') }}">
+        </div>
+        <button type="submit" class="btn btn-custom">{{ _('Set Budget') }}</button>
+    </form>
+</div>
+
+<!-- Auto-Transactions -->
+<div class="widget">
+    <h2>{{ _('Auto-Transactions') }}</h2>
+    <a href="{{ url_for('upload') }}" class="btn btn-custom">{{ _('Upload Statement') }}</a>
+    <a href="{{ url_for('parse_sms_endpoint') }}" class="btn btn-custom">{{ _('Parse SMS') }}</a>
+</div>
+
+<!-- AI-Powered Tips -->
+<div class="widget">
+    <h2>{{ _('AI-Powered Tips') }}</h2>
+    <p>{{ ai_tip }}</p>
+</div>
+
+<!-- Navigation Links -->
+<div class="text-center">
+    <a href="{{ url_for('add_expense') }}" class="btn btn-custom">{{ _('Add Expense') }}</a>
+    <a href="{{ url_for('history') }}" class="btn btn-custom">{{ _('View History') }}</a>
+    <a href="{{ url_for('profile') }}" class="btn btn-custom">{{ _('Profile') }}</a>
+    <a href="{{ url_for('logout') }}" class="btn btn-custom">{{ _('Logout') }}</a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Pie Chart (Category Distribution)
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryTotals = {{ category_totals | tojson }};
+        const categoryLabels = Object.keys(categoryTotals);
+        const categoryData = Object.values(categoryTotals);
+        const categoryColors = categoryLabels.map((_, index) => `hsl(${(index * 360 / categoryLabels.length) % 360}, 70%, 50%)`);
+
+        new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: categoryColors,
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '{{ _("Expense Distribution") }}'
+                    }
+                }
+            }
+        });
+
+        // Line Plot (Spending Trend)
+        const spendingTrendCtx = document.getElementById('spendingTrendChart').getContext('2d');
+        const historyData = {{ history | tojson }};
+        const dates = Object.keys(historyData).sort();
+        const dailyTotals = dates.map(date => {
+            const transactions = historyData[date];
+            return transactions.reduce((sum, tx) => sum + parseFloat(tx.amount), 0);
+        });
+
+        new Chart(spendingTrendCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: '{{ _("Daily Spending") }}',
+                    data: dailyTotals,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '{{ _("Spending Trend Over Time") }}'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '{{ _("Date") }}'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '{{ _("Amount (₹)") }}'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Bar Chart (Category-Wise Spending)
+        const categoryBarCtx = document.getElementById('categoryBarChart').getContext('2d');
+        new Chart(categoryBarCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: '{{ _("Spending by Category") }}',
+                    data: categoryData,
+                    backgroundColor: categoryColors,
+                    borderColor: categoryColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '{{ _("Category-Wise Spending") }}'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '{{ _("Category") }}'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '{{ _("Amount (₹)") }}'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

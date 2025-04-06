@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - {{ _('SmartExpenseTracker') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Link to the local styles.css file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        body.dark-mode {
+            background: linear-gradient(135deg, #2c3e50 0%, #4b6584 100%);
+            color: #f1f1f1;
+        }
+        body.custom-bg {
+            background: url('') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .widget {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        body.dark-mode .widget {
+            background-color: #34495e;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+        }
+        .language-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .language-toggle a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        body.dark-mode .language-toggle a {
+            color: #00c4ff;
+        }
+        .language-toggle a:hover {
+            text-decoration: underline;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        body.dark-mode .btn-custom {
+            background-color: #00c4ff;
+        }
+        body.dark-mode .btn-custom:hover {
+            background-color: #0097c4;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            animation: fadeIn 1s ease-in-out;
+        }
+        body.dark-mode h1, body.dark-mode h2 {
+            color: #f1f1f1;
+        }
+        .form-control, .form-select {
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    <div class="language-toggle">
+        <a href="{{ url_for('set_language', lang='en') }}">{{ _('English') }}</a>
+        <a href="{{ url_for('set_language', lang='hi') }}">{{ _('हिन्दी') }}</a>
+    </div>
+
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-custom">{{ _('Toggle Theme') }}</button>
+        <input type="file" id="bgImage" accept="image/*" style="margin-left: 10px;">
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Background Image
+        const bgImageInput = document.getElementById('bgImage');
+        bgImageInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.body.classList.add('custom-bg');
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                    localStorage.setItem('bgImage', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load saved background image
+        if (localStorage.getItem('bgImage')) {
+            document.body.classList.add('custom-bg');
+            document.body.style.backgroundImage = `url(${localStorage.getItem('bgImage')})`;
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

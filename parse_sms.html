@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Parse SMS Transactions') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+</head>
+<body>
+    <div class="language-toggle">
+        <a href="{{ url_for('set_language', lang='en') }}">English</a>
+        <a href="{{ url_for('set_language', lang='hi') }}">हिन्दी</a>
+    </div>
+    <div class="container">
+        <h1>{{ _('Parse SMS Transactions') }}</h1>
+        <p>{{ _('Paste your SMS text below (e.g., "Debited INR 100 for Lunch on 2025-03-25")') }}</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="sms_text">{{ _('SMS Text') }}</label>
+                <textarea id="sms_text" name="sms_text" rows="5" style="width: 100%; padding: 10px; border-radius: 8px;" required></textarea>
+            </div>
+            <button type="submit" class="btn">{{ _('Parse and Add Transactions') }}</button>
+        </form>
+        <a href="{{ url_for('home_endpoint') }}" class="btn">{{ _('Back to Home') }}</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Add Expense') }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{ _('Add Expense') }}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="widget">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="amount" class="form-label">{{ _('Amount') }}</label>
+                <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">{{ _('Description') }}</label>
+                <input type="text" class="form-control" id="description" name="description" required>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">{{ _('Category') }}</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="food">{{ _('Food') }}</option>
+                    <option value="transport">{{ _('Transport') }}</option>
+                    <option value="entertainment">{{ _('Entertainment') }}</option>
+                    <option value="other">{{ _('Other') }}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="transaction_type" class="form-label">{{ _('Transaction Type') }}</label>
+                <select class="form-select" id="transaction_type" name="transaction_type" required>
+                    <option value="Cash">{{ _('Cash') }}</option>
+                    <option value="Card">{{ _('Card') }}</option>
+                    <option value="Online">{{ _('Online') }}</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="date" class="form-label">{{ _('Date') }}</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ _('Add Expense') }}</button>
+        </form>
+    </div>
+    <a href="{{ url_for('home_endpoint') }}" class="btn btn-primary">{{ _('Back to Home') }}</a>
+</div>
+{% endblock %}

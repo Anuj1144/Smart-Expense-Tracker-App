@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Profile') }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{ _('Profile') }}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="widget">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="password" class="form-label">{{ _('Password') }}</label>
+                <input type="password" class="form-control" id="password" name="password" value="{{ user_data.password }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">{{ _('Email') }}</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user_data.email }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">{{ _('Phone') }}</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ user_data.phone }}" required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="notifications" name="notifications" {% if user_data.notifications_enabled %}checked{% endif %}>
+                <label class="form-check-label" for="notifications">{{ _('Enable Notifications') }}</label>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ _('Update Profile') }}</button>
+        </form>
+    </div>
+    <a href="{{ url_for('home_endpoint') }}" class="btn btn-primary">{{ _('Back to Home') }}</a>
+</div>
+{% endblock %}

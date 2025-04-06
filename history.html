@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ _('History') }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{ _('Expense History') }}</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Created At') }}</th> <!-- Add column for created_at -->
+                <th>{{ _('Description') }}</th>
+                <th>{{ _('Amount') }}</th>
+                <th>{{ _('Category') }}</th>
+                <th>{{ _('Transaction Type') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for date, expenses in history.items() %}
+                {% for expense in expenses %}
+                    <tr class="{% if expense.amount|float > 200 %}highlight{% endif %} animated fadeInUp">
+                        <td>{{ expense.date }}</td>
+                        <td>{{ expense.created_at }}</td> <!-- Display created_at -->
+                        <td>{{ expense.description }}</td>
+                        <td>₹{{ expense.amount }}</td>
+                        <td>{{ expense.category }}</td>
+                        <td>{{ expense.transaction_type }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="5"><strong>{{ _('Daily Total for') }} {{ date }}:</strong></td>
+                    <td><strong>₹{{ daily_totals[date] }}</strong></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home_endpoint') }}" class="btn btn-primary">{{ _('Back to Home') }}</a>
+</div>
+{% endblock %}

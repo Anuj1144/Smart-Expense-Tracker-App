@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Expense Tracker - Database</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #e0eafc, #cfdef3); margin: 0; padding: 0; }
+        .navbar { background-color: #2c3e50; overflow: hidden; padding: 10px 0; }
+        .navbar a { color: white; text-decoration: none; padding: 14px 20px; display: inline-block; transition: background-color 0.3s; }
+        .navbar a:hover { background-color: #34495e; }
+        .container { max-width: 900px; margin: 50px auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); animation: fadeIn 1s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #e74c3c; }
+        .filter-section { margin-bottom: 20px; }
+        .filter-section select { padding: 8px; border-radius: 5px; margin-right: 10px; }
+        .filter-section button { padding: 8px 15px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .filter-section button:hover { background-color: #2980b9; }
+        h1 { color: #2c3e50; }
+        h3 { color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Welcome</a>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('add_expense_page') }}">Add Expense</a>
+        <a href="{{ url_for('database') }}">Database</a>
+    </div>
+    <div class="container">
+        <h1>Database</h1>
+        <div class="filter-section">
+            <select id="filterCategory">
+                <option value="">All Categories</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Bills">Bills</option>
+                <option value="Rent">Rent</option>
+            </select>
+            <select id="filterType">
+                <option value="">All Types</option>
+                <option value="Cash">Cash</option>
+                <option value="Credit">Credit</option>
+                <option value="Debit">Debit</option>
+                <option value="Online">Online Payment</option>
+            </select>
+            <button onclick="applyFilter()">Apply Filter</button>
+        </div>
+        <div class="card" id="databaseContent">
+            <h3>Database Content:</h3>
+            {% for row in database %}
+                <p>ID: {{ row.id }}, Amount: ₹{{ row.amount }}, Description: {{ row.description }}, Category: {{ row.category }}, Type: {{ row.transaction_type }}, Cash: {{ row.is_cash }}, Date: {{ row.date }}, Block Hash: {{ row.block_hash }}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function applyFilter() {
+            const category = document.getElementById('filterCategory').value;
+            const type = document.getElementById('filterType').value;
+            const rows = {{ database | tojson }};
+            const contentDiv = document.getElementById('databaseContent');
+            contentDiv.innerHTML = '<h3>Database Content:</h3>';
+            rows.forEach(row => {
+                if ((category === '' || row.category === category) && (type === '' || row.transaction_type === type)) {
+                    contentDiv.innerHTML += `<p>ID: ${row.id}, Amount: ₹${row.amount}, Description: ${row.description}, Category: ${row.category}, Type: ${row.transaction_type}, Cash: ${row.is_cash}, Date: ${row.date}, Block Hash: ${row.block_hash}</p>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

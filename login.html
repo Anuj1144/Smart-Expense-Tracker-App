@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Login') }}{% endblock %}
+
+{% block content %}
+<h1>{{ _('Login to SmartExpenseTracker') }}</h1>
+<div class="widget">
+    <form method="POST">
+        <div class="mb-3">
+            <label for="username" class="form-label">{{ _('Username') }}</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">{{ _('Password') }}</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-3">
+            <label for="pin" class="form-label">{{ _('PIN') }}</label>
+            <input type="password" class="form-control" id="pin" name="pin" required>
+        </div>
+        <button type="submit" class="btn btn-custom">{{ _('Login') }}</button>
+    </form>
+</div>
+{% endblock %}

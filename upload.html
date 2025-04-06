@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Upload Statement') }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .spinner {
+        display: none;
+        width: 3rem;
+        height: 3rem;
+        margin: 20px auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{{ _('Upload Statement') }}</h1>
+<div class="widget">
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="file" class="form-label">{{ _('Upload File (PDF, PNG, JPG, JPEG)') }}</label>
+            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.png,.jpg,.jpeg" required>
+        </div>
+        <button type="submit" class="btn btn-custom">{{ _('Upload') }}</button>
+    </form>
+    <div class="spinner-border text-primary spinner" role="status">
+        <span class="visually-hidden">{{ _('Loading...') }}</span>
+    </div>
+</div>
+<div class="text-center">
+    <a href="{{ url_for('home_endpoint') }}" class="btn btn-custom">{{ _('Back to Home') }}</a>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', () => {
+        document.querySelector('.spinner').style.display = 'block';
+    });
+</script>
+{% endblock %}

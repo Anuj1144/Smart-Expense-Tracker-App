@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ get_locale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('Questionnaire') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.min.css') }}">
+</head>
+<body>
+    <div class="language-toggle">
+        <a href="{{ url_for('set_language', lang='en') }}">English</a>
+        <a href="{{ url_for('set_language', lang='hi') }}">हिन्दी</a>
+    </div>
+    <div class="container">
+        <h1>{{ _('Tell Us About Yourself') }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label for="monthly_income">{{ _('Monthly Income (₹)') }}</label>
+                <input type="number" id="monthly_income" name="monthly_income" required>
+            </div>
+            <div class="form-group">
+                <label for="expense_habits">{{ _('Expense Habits') }}</label>
+                <select id="expense_habits" name="expense_habits" required>
+                    <option value="Frugal">{{ _('Frugal') }}</option>
+                    <option value="Moderate">{{ _('Moderate') }}</option>
+                    <option value="Extravagant">{{ _('Extravagant') }}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="savings_goal">{{ _('Monthly Savings Goal (₹)') }}</label>
+                <input type="number" id="savings_goal" name="savings_goal" required>
+            </div>
+            <div class="form-group">
+                <label>{{ _('Preferred Expense Categories') }}</label>
+                <input type="checkbox" id="food" name="preferred_categories" value="food">
+                <label for="food">{{ _('Food') }}</label>
+                <input type="checkbox" id="travel" name="preferred_categories" value="travel">
+                <label for="travel">{{ _('Travel') }}</label>
+                <input type="checkbox" id="entertainment" name="preferred_categories" value="entertainment">
+                <label for="entertainment">{{ _('Entertainment') }}</label>
+                <input type="checkbox" id="miscellaneous" name="preferred_categories" value="miscellaneous">
+                <label for="miscellaneous">{{ _('Miscellaneous') }}</label>
+            </div>
+            <button type="submit" class="btn">{{ _('Submit') }}</button>
+        </form>
+    </div>
+</body>
+</html>
